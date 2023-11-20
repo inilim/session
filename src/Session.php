@@ -34,6 +34,11 @@ class Session
       if ($this->init) throw new \LogicException(self::class . ' Повторная инициализация');
       if (is_string($domain)) session_set_cookie_params(0, '/', '.' . $domain);
       session_start($option);
+      $ses_name = session_name();
+      $ses_id   = session_id();
+      if (is_string($ses_name) && is_string($ses_id)) {
+         $_COOKIE[$ses_name] ??= $ses_id;
+      }
       $this->init        = true;
       $this->auto_commit = $auto_commit;
       $this->data        = $_SESSION;
