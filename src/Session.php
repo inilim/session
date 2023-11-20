@@ -142,7 +142,6 @@ class Session
 
    public function status(): bool
    {
-      // return session_status() === PHP_SESSION_ACTIVE;
       return $this->init;
    }
 
@@ -150,7 +149,7 @@ class Session
    {
       $name = session_name();
       if (is_string($name)) {
-         setcookie($name, '', (time() - 100), '/');
+         setcookie($name, '', (time() - 3600), '/');
          unset($_COOKIE[$name]);
       }
       $_SESSION = [];
