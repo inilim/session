@@ -143,6 +143,11 @@ class Session
 
    public function destroy(): void
    {
+      $name = session_name();
+      if (is_string($name)) {
+         setcookie($name, '', (time() - 100), '/');
+         unset($_COOKIE[$name]);
+      }
       $_SESSION = [];
       @session_destroy();
       session_write_close();
