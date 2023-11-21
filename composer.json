@@ -1,20 +1,20 @@
 {
-    "name": "inilim/session",
-    "description": "session",
-    "type": "library",
-    "license": "Free",
-    "autoload": {
-        "psr-4": {
-            "Inilim\\Session\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "inilim"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {
-        "php": "^8.2"
+  "name": "inilim/session",
+  "description": "session",
+  "type": "library",
+  "license": "Free",
+  "autoload": {
+    "psr-4": {
+      "Inilim\\": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "inilim"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": "^8.2"
+  }
 }
