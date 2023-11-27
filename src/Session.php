@@ -149,7 +149,7 @@ class Session
    {
       $name = session_name();
       if (is_string($name)) {
-         setcookie($name, '', (time() - 3600), '/');
+         setcookie($name, '', (time() - (3600 * 24)), '/');
          unset($_COOKIE[$name]);
       }
       $_SESSION = [];
