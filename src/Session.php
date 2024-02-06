@@ -60,6 +60,15 @@ class Session
    }
 
    /**
+    * Очистить все во всех сегментах
+    */
+   public function flushAll(): void
+   {
+      $this->data = [];
+      $this->changed = true;
+   }
+
+   /**
     * записать с заменой
     */
    public function put(string $name, mixed $value): void
