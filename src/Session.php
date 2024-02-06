@@ -59,18 +59,33 @@ class Session
       $this->changed = true;
    }
 
+   /**
+    * записать с заменой
+    */
    public function put(string $name, mixed $value): void
    {
       $this->data[$this->segment_name][$name] = $value;
       $this->changed = true;
    }
 
+   /**
+    * записывает массив в корень с заменой
+    */
+   public function putInRoot(array $value): void
+   {
+      $this->data[$this->segment_name] = $value;
+      $this->changed = true;
+   }
+
+   /**
+    * 
+    */
    public function push(string $name, mixed $value): self
    {
-      $values = $this->get($name, []);
-      if (!\is_array($values)) $values = [$values];
-      $values[] = $value;
-      $this->put($name, $values);
+      $old_value = $this->get($name, []);
+      if (!\is_array($old_value)) $old_value = [$old_value];
+      $old_value[] = $value;
+      $this->put($name, $old_value);
       $this->changed = true;
       return $this;
    }
@@ -136,7 +151,7 @@ class Session
     */
    public function forget(string|array $name): void
    {
-      if (\is_array($name)) \array_map(fn ($name) => $this->remove(\strval($name)), $name);
+      if (\is_array($name)) \array_map(fn ($n) => $this->remove(\strval($n)), $name);
       else $this->remove($name);
    }
 
