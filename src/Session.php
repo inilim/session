@@ -32,11 +32,11 @@ class Session
    public function init(array $option = [], bool $auto_commit = false, ?string $domain = null): void
    {
       if ($this->init) throw new \LogicException(self::class . ' Повторная инициализация');
-      if (is_string($domain)) session_set_cookie_params(0, '/', '.' . $domain);
-      session_start($option);
-      $ses_name = session_name();
-      $ses_id   = session_id();
-      if (is_string($ses_name) && is_string($ses_id)) {
+      if (\is_string($domain)) \session_set_cookie_params(0, '/', '.' . $domain);
+      \session_start($option);
+      $ses_name = \session_name();
+      $ses_id   = \session_id();
+      if (\is_string($ses_name) && \is_string($ses_id)) {
          $_COOKIE[$ses_name] ??= $ses_id;
       }
       $this->init        = true;
@@ -68,7 +68,7 @@ class Session
    public function push(string $name, mixed $value): self
    {
       $values = $this->get($name, []);
-      if (!is_array($values)) $values = [$values];
+      if (!\is_array($values)) $values = [$values];
       $values[] = $value;
       $this->put($name, $values);
       $this->changed = true;
@@ -116,7 +116,7 @@ class Session
    public function get(string $name, mixed $default = null): mixed
    {
       if (!$this->has($name)) {
-         if (is_callable($default)) return $default();
+         if (\is_callable($default)) return $default();
          return $default;
       } else {
          return $this->data[$this->segment_name][$name];
@@ -136,7 +136,7 @@ class Session
     */
    public function forget(string|array $name): void
    {
-      if (is_array($name)) array_map(fn ($name) => $this->remove(strval($name)), $name);
+      if (\is_array($name)) \array_map(fn ($name) => $this->remove(\strval($name)), $name);
       else $this->remove($name);
    }
 
@@ -147,14 +147,14 @@ class Session
 
    public function destroy(): void
    {
-      $name = session_name();
-      if (is_string($name)) {
-         setcookie($name, '', (time() - (3600 * 24)), '/');
+      $name = \session_name();
+      if (\is_string($name)) {
+         \setcookie($name, '', (\time() - (3600 * 24)), '/');
          unset($_COOKIE[$name]);
       }
       $_SESSION = [];
-      @session_destroy();
-      session_write_close();
+      @\session_destroy();
+      \session_write_close();
    }
 
    public function commit(): void
@@ -162,7 +162,7 @@ class Session
       if ($this->changed) {
          $this->changed = false;
          $_SESSION = $this->data;
-         session_write_close();
+         \session_write_close();
       }
    }
 
