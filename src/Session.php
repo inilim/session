@@ -78,7 +78,7 @@ class Session
    }
 
    /**
-    * записывает массив в корень с заменой
+    * записывает массив в корень сегмента с заменой
     */
    public function putInRoot(array $value): void
    {
