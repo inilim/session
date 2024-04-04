@@ -32,7 +32,13 @@ class Session
    public function init(array $option = [], bool $auto_commit = false, ?string $domain = null): void
    {
       if ($this->init) throw new \LogicException(self::class . ' Повторная инициализация');
-      if (\is_string($domain)) \session_set_cookie_params(0, '/', '.' . $domain);
+      if (\is_string($domain)) {
+         \session_set_cookie_params([
+            'lifetime' => 0,
+            'path'     => '/',
+            'domain'   => '.' . $domain,
+         ]);
+      }
       \session_start($option);
       $ses_name = \session_name();
       $ses_id   = \session_id();
@@ -43,6 +49,16 @@ class Session
       $this->auto_commit = $auto_commit;
       $this->data        = $_SESSION;
       $this->data[$this->segment_name] ??= [];
+   }
+
+   /**
+    * session_get_cookie_params | 
+    * https://www.php.net/manual/ru/function.session-get-cookie-params.php
+    * @return array{lifetime:int,path:string,domain:string,secure:bool,httponly:bool,samesite:string}
+    */
+   public function getCookieParams(): array
+   {
+      return \session_get_cookie_params();
    }
 
    public function has(string $name): bool
@@ -140,7 +156,7 @@ class Session
    public function get(string $name, mixed $default = null): mixed
    {
       if (!$this->has($name)) {
-         if (\is_callable($default)) return $default();
+         if (\is_callable($default)) return \call_user_func($default);
          return $default;
       } else {
          return $this->data[$this->segment_name][$name];
