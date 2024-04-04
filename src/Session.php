@@ -29,15 +29,11 @@ class Session
    /**
     * @param array<string,mixed> $option
     */
-   public function init(array $option = [], bool $auto_commit = false, ?string $domain = null): void
+   public function init(array $option = [], bool $auto_commit = false, ?array $cookie_params = null): void
    {
       if ($this->init) throw new \LogicException(self::class . ' Повторная инициализация');
-      if (\is_string($domain)) {
-         \session_set_cookie_params([
-            'lifetime' => 0,
-            'path'     => '/',
-            'domain'   => '.' . $domain,
-         ]);
+      if ($cookie_params !== null) {
+         \session_set_cookie_params($cookie_params);
       }
       \session_start($option);
       $ses_name = \session_name();
