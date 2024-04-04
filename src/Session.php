@@ -27,15 +27,15 @@ class Session
    }
 
    /**
-    * @param array<string,mixed> $option
+    * @param array<string,mixed> $options
     */
-   public function init(array $option = [], bool $auto_commit = false, ?array $cookie_params = null): void
+   public function init(array $options = [], bool $auto_commit = false, ?array $cookie_params = null): void
    {
       if ($this->init) throw new \LogicException(self::class . ' Повторная инициализация');
       if ($cookie_params !== null) {
          \session_set_cookie_params($cookie_params);
       }
-      \session_start($option);
+      \session_start($options);
       $ses_name = \session_name();
       $ses_id   = \session_id();
       if (\is_string($ses_name) && \is_string($ses_id)) {
