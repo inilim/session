@@ -9,6 +9,8 @@ class Session
    private bool $init           = false;
    private bool $changed        = false;
    private bool $auto_commit    = false;
+   private ?string $name = null;
+   private ?string $id   = null;
    /**
     * @var mixed[][]
     */
@@ -39,12 +41,40 @@ class Session
       $ses_name = \session_name();
       $ses_id   = \session_id();
       if (\is_string($ses_name) && \is_string($ses_id)) {
-         $_COOKIE[$ses_name] ??= $ses_id;
+         $this->name = $ses_name;
+         $this->id   = $ses_id;
+         $_COOKIE[$ses_name] = $ses_id;
       }
       $this->init        = true;
       $this->auto_commit = $auto_commit;
       $this->data        = $_SESSION;
       $this->data[$this->segment_name] ??= [];
+   }
+
+   /**
+    * name=ID
+    * @return string|empty-string
+    */
+   public function SID(): string
+   {
+      if ($this->name === null || $this->id === null) return '';
+      return $this->name . '=' . $this->id;
+   }
+
+   /**
+    * @return string|empty-string
+    */
+   public function getName(): string
+   {
+      return $this->name ?? '';
+   }
+
+   /**
+    * @return string|empty-string
+    */
+   public function getID(): string
+   {
+      return $this->id ?? '';
    }
 
    /**
