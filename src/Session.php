@@ -5,18 +5,40 @@ namespace Inilim\Session;
 class Session
 {
    private const NAME           = '_main';
-   private string $segment_name = self::NAME;
-   private bool $init           = false;
-   private bool $changed        = false;
-   private bool $auto_commit    = false;
-   private ?string $name = null;
-   private ?string $id   = null;
+   /**
+    * @var string
+    */
+   private $segment_name = self::NAME;
+   /**
+    * @var boolean
+    */
+   private $init           = false;
+   /**
+    * @var boolean
+    */
+   private $changed        = false;
+   /**
+    * @var boolean
+    */
+   private $auto_commit    = false;
+   /**
+    * @var string|null
+    */
+   private $name = null;
+   /**
+    * @var string|null
+    */
+   private $id   = null;
    /**
     * @var mixed[][]
     */
-   private array $data          = [];
+   private $data          = [];
 
-   public function segment(string $name): self
+   /**
+    * @param string $name
+    * @return self
+    */
+   public function segment($name)
    {
       if ($name === self::NAME) return $this;
       $new               = new self;
@@ -30,8 +52,11 @@ class Session
 
    /**
     * @param array<string,mixed> $options
+    * @param bool $auto_commit
+    * @param null|array $cookie_params
+    * @return void
     */
-   public function init(array $options = [], bool $auto_commit = false, ?array $cookie_params = null): void
+   public function init($options = [], $auto_commit = false, $cookie_params = null)
    {
       if ($this->init) throw new \LogicException(self::class . ' Повторная инициализация');
       if ($cookie_params !== null) {
@@ -55,7 +80,7 @@ class Session
     * name=ID
     * @return string|empty-string
     */
-   public function SID(): string
+   public function SID()
    {
       if ($this->name === null || $this->id === null) return '';
       return $this->name . '=' . $this->id;
@@ -64,7 +89,7 @@ class Session
    /**
     * @return string|empty-string
     */
-   public function getName(): string
+   public function getName()
    {
       return $this->name ?? '';
    }
@@ -72,7 +97,7 @@ class Session
    /**
     * @return string|empty-string
     */
-   public function getID(): string
+   public function getID()
    {
       return $this->id ?? '';
    }
@@ -82,20 +107,44 @@ class Session
     * https://www.php.net/manual/ru/function.session-get-cookie-params.php
     * @return array{lifetime:int,path:string,domain:string,secure:bool,httponly:bool,samesite:string}
     */
-   public function getCookieParams(): array
+   public function getCookieParams()
    {
       return \session_get_cookie_params();
    }
 
-   public function has(string $name): bool
+   /**
+    * Determine if any of the given keys are present and not null.
+    *
+    * @param  string|array  $key
+    * @return bool
+    */
+   public function hasAny($key)
    {
-      return isset($this->data[$this->segment_name][$name]);
+      return \sizeof(\array_filter(
+         \is_array($key) ? $key : \func_get_args(),
+         function ($key) {
+            return $this->has($key);
+         }
+      )) >= 1;
+   }
+
+   /**
+    *
+    * @param string $key
+    * @return bool
+    */
+   public function has($key)
+   {
+      $this->data[$this->segment_name] ??= [];
+      return \array_key_exists($key, $this->data[$this->segment_name]);
    }
 
    /**
     * очистить все в текущем сегменте
+    *
+    * @return void
     */
-   public function flush(): void
+   public function flush()
    {
       $this->data[$this->segment_name] = [];
       $this->changed = true;
@@ -103,8 +152,10 @@ class Session
 
    /**
     * Очистить все во всех сегментах
+    *
+    * @return void
     */
-   public function flushAll(): void
+   public function flushAll()
    {
       $this->data = [];
       $this->changed = true;
@@ -112,8 +163,11 @@ class Session
 
    /**
     * записать с заменой
+    * @param string $name
+    * @param mixed $value
+    * @return void
     */
-   public function put(string $name, mixed $value): void
+   public function put($name, $value)
    {
       $this->data[$this->segment_name][$name] = $value;
       $this->changed = true;
@@ -121,17 +175,22 @@ class Session
 
    /**
     * записывает массив в корень сегмента с заменой
+    *
+    * @param array $value
+    * @return void
     */
-   public function putInRoot(array $value): void
+   public function putInRoot($value)
    {
       $this->data[$this->segment_name] = $value;
       $this->changed = true;
    }
 
    /**
-    * 
+    * @param string $name
+    * @param mixed $value
+    * @return self
     */
-   public function push(string $name, mixed $value): self
+   public function push($name, $value)
    {
       $old_value = $this->get($name, []);
       if (!\is_array($old_value)) $old_value = [$old_value];
@@ -144,12 +203,17 @@ class Session
    /**
     * @return mixed[]|array{}
     */
-   public function all(): array
+   public function all()
    {
       return $this->data[$this->segment_name] ?? [];
    }
 
-   public function pull(string $name, mixed $default = null): mixed
+   /**
+    * @param string $name
+    * @param mixed $default
+    * @return mixed
+    */
+   public function pull($name, $default = null)
    {
       $t = $this->get($name, $default);
       $this->remove($name);
@@ -157,7 +221,12 @@ class Session
       return $t;
    }
 
-   public function increment(string $name, int $increment_by = 1): self
+   /**
+    * @param string $name
+    * @param integer $increment_by
+    * @return self
+    */
+   public function increment($name, $increment_by = 1)
    {
       if (!$this->has($name)) {
          $this->put($name, 0);
@@ -168,7 +237,12 @@ class Session
       return $this;
    }
 
-   public function decrement(string $name, int $decrement_by = 1): self
+   /**
+    * @param string $name
+    * @param integer $decrement_by
+    * @return self
+    */
+   public function decrement($name, $decrement_by = 1)
    {
       if (!$this->has($name)) {
          $this->put($name, 0);
@@ -179,7 +253,12 @@ class Session
       return $this;
    }
 
-   public function get(string $name, mixed $default = null): mixed
+   /**
+    * @param string $name
+    * @param mixed $default
+    * @return mixed
+    */
+   public function get($name, $default = null)
    {
       if (!$this->has($name)) {
          if (\is_callable($default)) return \call_user_func($default);
@@ -189,7 +268,11 @@ class Session
       }
    }
 
-   public function remove(string $name): void
+   /**
+    * @param string $name
+    * @return void
+    */
+   public function remove($name)
    {
       if ($name === '') return;
       unset($this->data[$this->segment_name][$name]);
@@ -200,18 +283,24 @@ class Session
     * @param string|string[] $name
     * @return void
     */
-   public function forget(string|array $name): void
+   public function forget($name)
    {
       if (\is_array($name)) \array_map(fn ($n) => $this->remove(\strval($n)), $name);
       else $this->remove($name);
    }
 
-   public function status(): bool
+   /**
+    * @return boolean
+    */
+   public function status()
    {
       return $this->init;
    }
 
-   public function destroy(): void
+   /**
+    * @return void
+    */
+   public function destroy()
    {
       $name = \session_name();
       if (\is_string($name)) {
@@ -223,7 +312,10 @@ class Session
       \session_write_close();
    }
 
-   public function commit(): void
+   /**
+    * @return void
+    */
+   public function commit()
    {
       if ($this->changed) {
          $this->changed = false;
