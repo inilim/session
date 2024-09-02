@@ -38,7 +38,7 @@ class Session
     * @param string $name
     * @return self
     */
-   public function segment($name)
+   function segment($name)
    {
       if ($name === self::NAME) return $this;
       $new               = new self;
@@ -56,7 +56,7 @@ class Session
     * @param null|array $cookie_params
     * @return void
     */
-   public function init($options = [], $auto_commit = false, $cookie_params = null)
+   function init($options = [], $auto_commit = false, $cookie_params = null)
    {
       if ($this->init) throw new \LogicException(self::class . ' Повторная инициализация');
       if ($cookie_params !== null) {
@@ -80,7 +80,7 @@ class Session
     * name=ID
     * @return string|empty-string
     */
-   public function SID()
+   function SID()
    {
       if ($this->name === null || $this->id === null) return '';
       return $this->name . '=' . $this->id;
@@ -89,7 +89,7 @@ class Session
    /**
     * @return string|empty-string
     */
-   public function getName()
+   function getName()
    {
       return $this->name ?? '';
    }
@@ -97,7 +97,7 @@ class Session
    /**
     * @return string|empty-string
     */
-   public function getID()
+   function getID()
    {
       return $this->id ?? '';
    }
@@ -107,7 +107,7 @@ class Session
     * https://www.php.net/manual/ru/function.session-get-cookie-params.php
     * @return array{lifetime:int,path:string,domain:string,secure:bool,httponly:bool,samesite:string}
     */
-   public function getCookieParams()
+   function getCookieParams()
    {
       return \session_get_cookie_params();
    }
@@ -118,7 +118,7 @@ class Session
     * @param  string|array  $key
     * @return bool
     */
-   public function hasAny($key)
+   function hasAny($key)
    {
       return \sizeof(\array_filter(
          \is_array($key) ? $key : \func_get_args(),
@@ -133,7 +133,7 @@ class Session
     * @param string $key
     * @return bool
     */
-   public function has($key)
+   function has($key)
    {
       $this->data[$this->segment_name] ??= [];
       return \array_key_exists($key, $this->data[$this->segment_name]);
@@ -144,7 +144,7 @@ class Session
     *
     * @return void
     */
-   public function flush()
+   function flush()
    {
       $this->data[$this->segment_name] = [];
       $this->changed = true;
@@ -155,7 +155,7 @@ class Session
     *
     * @return void
     */
-   public function flushAll()
+   function flushAll()
    {
       $this->data = [];
       $this->changed = true;
@@ -167,7 +167,7 @@ class Session
     * @param mixed $value
     * @return void
     */
-   public function put($name, $value)
+   function put($name, $value)
    {
       $this->data[$this->segment_name][$name] = $value;
       $this->changed = true;
@@ -179,7 +179,7 @@ class Session
     * @param array $value
     * @return void
     */
-   public function putInRoot($value)
+   function putInRoot($value)
    {
       $this->data[$this->segment_name] = $value;
       $this->changed = true;
@@ -190,7 +190,7 @@ class Session
     * @param mixed $value
     * @return self
     */
-   public function push($name, $value)
+   function push($name, $value)
    {
       $old_value = $this->get($name, []);
       if (!\is_array($old_value)) $old_value = [$old_value];
@@ -203,7 +203,7 @@ class Session
    /**
     * @return mixed[]|array{}
     */
-   public function all()
+   function all()
    {
       return $this->data[$this->segment_name] ?? [];
    }
@@ -213,7 +213,7 @@ class Session
     * @param mixed $default
     * @return mixed
     */
-   public function pull($name, $default = null)
+   function pull($name, $default = null)
    {
       $t = $this->get($name, $default);
       $this->remove($name);
@@ -226,7 +226,7 @@ class Session
     * @param integer $increment_by
     * @return self
     */
-   public function increment($name, $increment_by = 1)
+   function increment($name, $increment_by = 1)
    {
       if (!$this->has($name)) {
          $this->put($name, 0);
@@ -242,7 +242,7 @@ class Session
     * @param integer $decrement_by
     * @return self
     */
-   public function decrement($name, $decrement_by = 1)
+   function decrement($name, $decrement_by = 1)
    {
       if (!$this->has($name)) {
          $this->put($name, 0);
@@ -258,7 +258,7 @@ class Session
     * @param mixed $default
     * @return mixed
     */
-   public function get($name, $default = null)
+   function get($name, $default = null)
    {
       if (!$this->has($name)) {
          if (\is_callable($default)) return \call_user_func($default);
@@ -272,7 +272,7 @@ class Session
     * @param string $name
     * @return void
     */
-   public function remove($name)
+   function remove($name)
    {
       if ($name === '') return;
       unset($this->data[$this->segment_name][$name]);
@@ -283,16 +283,16 @@ class Session
     * @param string|string[] $name
     * @return void
     */
-   public function forget($name)
+   function forget($name)
    {
-      if (\is_array($name)) \array_map(fn ($n) => $this->remove(\strval($n)), $name);
+      if (\is_array($name)) \array_map(fn($n) => $this->remove(\strval($n)), $name);
       else $this->remove($name);
    }
 
    /**
     * @return boolean
     */
-   public function status()
+   function status()
    {
       return $this->init;
    }
@@ -300,8 +300,9 @@ class Session
    /**
     * @return void
     */
-   public function destroy()
+   function destroy()
    {
+      $this->data = [];
       $name = \session_name();
       if (\is_string($name)) {
          \setcookie($name, '', (\time() - (3600 * 24)), '/');
@@ -315,7 +316,7 @@ class Session
    /**
     * @return void
     */
-   public function commit()
+   function commit()
    {
       if ($this->changed) {
          $this->changed = false;
@@ -324,7 +325,7 @@ class Session
       }
    }
 
-   public function __destruct()
+   function __destruct()
    {
       if ($this->auto_commit) {
          $this->commit();
