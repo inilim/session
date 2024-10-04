@@ -4,8 +4,9 @@ namespace Inilim\Session;
 
 final class Session
 {
-    protected const NAME          = '_main';
-    protected string $segmentName = self::NAME;
+    protected const ROOT_NAME_SEGMENT = '_main';
+
+    protected string $segmentName = self::ROOT_NAME_SEGMENT;
     protected bool $init          = false;
     protected bool $changed       = false;
     protected bool $autoCommit    = false;
@@ -21,7 +22,7 @@ final class Session
      */
     function segment(string $name)
     {
-        if ($name === self::NAME) return $this;
+        if ($name === self::ROOT_NAME_SEGMENT) return $this;
         $new               = new self;
         $new->data         = &$this->data;
         $new->init         = &$this->init;
